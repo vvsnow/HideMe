@@ -1,0 +1,21 @@
+## 构建输出（bin 和 obj 不追踪）
+bin/
+obj/
+
+## Visual Studio 用户缓存
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/**.txt
+
+## NuGet
+*.nupkg
+*.snupkg
+
+## 本机专用 Claude 配置（不入仓库）
+.claude/settings.local.json
+
+## 其他临时文件
+weaverErrors.txt
