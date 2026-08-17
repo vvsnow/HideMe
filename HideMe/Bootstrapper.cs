@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Threading;
 using Caliburn.Micro;
+using HideMe.Services;
 using HideMe.ViewModels;
 
 namespace HideMe
@@ -32,6 +33,9 @@ namespace HideMe
             // 框架服务
             _container.Singleton<IWindowManager, WindowManager>();
             _container.Singleton<IEventAggregator, EventAggregator>();
+
+            // 业务服务
+            _container.Singleton<SettingsService>();
 
             // 根视图模型（单例，整个应用共享一个主窗口实例）
             _container.Singleton<ShellViewModel>();

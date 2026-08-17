@@ -50,6 +50,8 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -61,7 +63,24 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="Models\FileSystemNode.cs" />
+    <Compile Include="Models\HiddenItem.cs" />
+    <Compile Include="Models\HiddenMeta.cs" />
+    <Compile Include="Services\AdStreamService.cs" />
+    <Compile Include="Services\SettingsService.cs" />
+    <Compile Include="ViewModels\BrowserViewModel.cs" />
+    <Compile Include="ViewModels\EncryptedListViewModel.cs" />
+    <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
+    <Compile Include="Views\BrowserView.xaml.cs">
+      <DependentUpon>BrowserView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EncryptedListView.xaml.cs">
+      <DependentUpon>EncryptedListView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsView.xaml.cs">
+      <DependentUpon>SettingsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ShellView.xaml.cs">
       <DependentUpon>ShellView.xaml</DependentUpon>
     </Compile>
@@ -101,12 +120,26 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\BrowserView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EncryptedListView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ShellView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Models\" />
+    <Folder Include="Services\" />
     <Folder Include="ViewModels\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
