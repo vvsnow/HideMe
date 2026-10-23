@@ -10,15 +10,15 @@ namespace HideMe.ViewModels
     public class ShellViewModel : Conductor<Screen>.Collection.OneActive
     {
         public BrowserViewModel Browser { get; }
-        public EncryptedListViewModel EncryptedList { get; }
+        public HiddenListViewModel HiddenList { get; }
         public SettingsViewModel Settings { get; }
 
         public ShellViewModel(BrowserViewModel browser,
-            EncryptedListViewModel encryptedList, SettingsViewModel settings)
+            HiddenListViewModel hiddenList, SettingsViewModel settings)
         {
             DisplayName = "HideMe";
             Browser = browser;
-            EncryptedList = encryptedList;
+            HiddenList = hiddenList;
             Settings = settings;
         }
 
@@ -29,7 +29,7 @@ namespace HideMe.ViewModels
         }
 
         public Task GoBrowser() => ActivateItemAsync(Browser);
-        public Task GoEncryptedList() => ActivateItemAsync(EncryptedList);
+        public Task GoHiddenList() => ActivateItemAsync(HiddenList);
         public Task GoSettings() => ActivateItemAsync(Settings);
     }
 }

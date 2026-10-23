@@ -14,6 +14,7 @@ namespace HideMe.Models
         [DataMember] public string Kind { get; set; }          // "File" | "Folder"
         [DataMember] public string OriginalPath { get; set; }  // 被隐藏的原始完整路径
         [DataMember] public DateTime HiddenAt { get; set; }    // 隐藏时间
+        [DataMember] public string Sha256 { get; set; }        // 数据流内容的 SHA-256（旧记录可能为空）
 
         public static string ToJson(HiddenMeta m)
         {

@@ -14,5 +14,6 @@ namespace HideMe.Models
         public string StreamId { get; set; }       // 数据/元数据流 id（HideMe_<id> / HideMeMeta_<id>）
         public string Kind { get; set; }           // "File" | "Folder"
         public DateTime HiddenAt { get; set; }     // 隐藏时间
+        public string Status { get; set; }         // "正常" | "元数据缺失（索引可恢复）" | "数据丢失" | "已恢复，副本未清理"
     }
 }

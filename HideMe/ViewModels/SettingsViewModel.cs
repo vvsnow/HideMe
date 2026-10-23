@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using Caliburn.Micro;
 using HideMe.Services;
 using PropertyChanged;
@@ -23,19 +24,21 @@ namespace HideMe.ViewModels
             DisplayName = "设置";
         }
 
-        protected override async Task OnInitializeAsync(CancellationToken cancellationToken)
+        protected override async Task OnActivateAsync(CancellationToken cancellationToken)
         {
             ConfirmBeforeHide = _settings.ConfirmBeforeHide;
             ShowHiddenFiles = _settings.ShowHiddenFiles;
-            await base.OnInitializeAsync(cancellationToken);
+            await base.OnActivateAsync(cancellationToken);
         }
 
-        public async Task Save()
+        public void Save()
         {
             _settings.ConfirmBeforeHide = ConfirmBeforeHide;
             _settings.ShowHiddenFiles = ShowHiddenFiles;
-            _settings.Save();
-            await Task.CompletedTask;
+
+            if (!_settings.Save())
+                MessageBox.Show("设置保存失败，详见日志：" + LogService.Directory, "HideMe",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 }

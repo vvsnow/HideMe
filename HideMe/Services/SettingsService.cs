@@ -21,6 +21,9 @@ namespace HideMe.Services
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "HideMe", "settings.json");
 
+        /// <summary>设置保存后触发，供文件树等界面即时刷新。</summary>
+        public event EventHandler Changed;
+
         public bool ConfirmBeforeHide { get; set; } = true;
         public bool ShowHiddenFiles { get; set; }
 
@@ -37,15 +40,21 @@ namespace HideMe.Services
                 using (var fs = File.OpenRead(_filePath))
                 {
                     var d = (SettingsData)new DataContractJsonSerializer(typeof(SettingsData)).ReadObject(fs);
+                    if (d == null) return;
                     ConfirmBeforeHide = d.ConfirmBeforeHide;
                     ShowHiddenFiles = d.ShowHiddenFiles;
                 }
             }
-            catch { /* 损坏或缺失 → 保持默认 */ }
+            catch (Exception ex)
+            {
+                LogService.Warn("读取设置失败，使用默认值：" + _filePath, ex);
+            }
         }
 
-        public void Save()
+        /// <summary>保存设置；返回 false 表示写入失败（内存中的值仍然生效）。</summary>
+        public bool Save()
         {
+            var success = true;
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(_filePath));
@@ -58,7 +67,23 @@ namespace HideMe.Services
                     });
                 }
             }
-            catch { /* 写失败不致命，下次再试 */ }
+            catch (Exception ex)
+            {
+                success = false;
+                LogService.Error("保存设置失败：" + _filePath, ex);
+            }
+
+            // 即使落盘失败，内存中的值也已变化，界面应同步
+            try
+            {
+                Changed?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                LogService.Warn("设置变更通知处理失败", ex);
+            }
+
+            return success;
         }
     }
 }

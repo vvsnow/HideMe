@@ -1,6 +1,8 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Caliburn.Micro;
@@ -17,17 +19,44 @@ namespace HideMe.ViewModels
     public class BrowserViewModel : Screen
     {
         private readonly SettingsService _settings;
+        private readonly IEventAggregator _events;
+        private bool _shownHiddenFiles;
+        private CancellationTokenSource _cts;
 
         public ObservableCollection<FileSystemNode> RootNodes { get; } = new ObservableCollection<FileSystemNode>();
         public FileSystemNode SelectedNode { get; set; }
 
-        [DependsOn(nameof(SelectedNode))]
-        public bool CanHide => SelectedNode != null;
+        public bool IsBusy { get; set; }
+        public string StatusText { get; set; }
+        public double ProgressValue { get; set; }
+        public bool IsIndeterminate { get; set; }
 
-        public BrowserViewModel(SettingsService settings)
+        [DependsOn(nameof(SelectedNode), nameof(IsBusy))]
+        public bool CanHide => SelectedNode != null && !IsBusy;
+
+        [DependsOn(nameof(IsBusy))]
+        public bool CanReload => !IsBusy;
+
+        [DependsOn(nameof(SelectedNode), nameof(IsBusy))]
+        public bool CanOpenInExplorer => SelectedNode != null && !IsBusy;
+
+        [DependsOn(nameof(IsBusy))]
+        public bool CanCancel => IsBusy;
+
+        public BrowserViewModel(SettingsService settings, IEventAggregator events)
         {
             _settings = settings;
+            _events = events;
+            _shownHiddenFiles = settings.ShowHiddenFiles;
+            settings.Changed += HandleSettingsChanged;
             DisplayName = "文件浏览器";
+            LoadRoots();
+        }
+
+        private void HandleSettingsChanged(object sender, EventArgs e)
+        {
+            if (_shownHiddenFiles == _settings.ShowHiddenFiles) return;
+            _shownHiddenFiles = _settings.ShowHiddenFiles;
             LoadRoots();
         }
 
@@ -36,15 +65,52 @@ namespace HideMe.ViewModels
             RootNodes.Clear();
             foreach (var d in DriveInfo.GetDrives())
             {
-                if (d.IsReady && (d.DriveType == DriveType.Fixed || d.DriveType == DriveType.Removable))
-                    RootNodes.Add(FileSystemNode.ForDirectory(d.RootDirectory.FullName, _settings.ShowHiddenFiles));
+                try
+                {
+                    if (d.IsReady && (d.DriveType == DriveType.Fixed || d.DriveType == DriveType.Removable))
+                        RootNodes.Add(FileSystemNode.ForDirectory(d.RootDirectory.FullName, _settings.ShowHiddenFiles));
+                }
+                catch (Exception ex)
+                {
+                    LogService.Warn("读取磁盘信息失败", ex);
+                }
             }
         }
 
-        public void Reload() => LoadRoots();
+        public void Reload()
+        {
+            if (IsBusy) return;
+            LoadRoots();
+        }
+
+        public void OpenInExplorer()
+        {
+            var node = SelectedNode;
+            if (node == null) return;
+
+            try
+            {
+                Process.Start(new ProcessStartInfo("explorer.exe", "/select,\"" + node.FullPath + "\"")
+                {
+                    UseShellExecute = true,
+                });
+            }
+            catch (Exception ex)
+            {
+                LogService.Error("打开资源管理器失败：" + node.FullPath, ex);
+                MessageBox.Show("打开资源管理器失败：" + ex.Message, "HideMe",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public void Cancel()
+        {
+            try { _cts?.Cancel(); } catch { }
+        }
 
         public async Task Hide()
         {
+            if (IsBusy) return;
             var node = SelectedNode;
             if (node == null) return;
 
@@ -55,21 +121,71 @@ namespace HideMe.ViewModels
                     "HideMe", MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK)
                 return;
 
+            IsBusy = true;
+            StatusText = "准备中…";
+            ProgressValue = 0;
+            IsIndeterminate = true;
+            _cts = new CancellationTokenSource();
+            var token = _cts.Token;
+
+            var progress = new Progress<ProgressInfo>(p =>
+            {
+                if (!IsBusy) return;
+                StatusText = p.Stage;
+                if (p.Total > 0)
+                {
+                    IsIndeterminate = false;
+                    ProgressValue = Math.Max(0, Math.Min(100, p.Processed * 100.0 / p.Total));
+                }
+                else
+                {
+                    IsIndeterminate = true;
+                    ProgressValue = 0;
+                }
+            });
+
             try
             {
-                await Task.Run(() =>
+                var result = await Task.Run(() =>
+                    node.IsDirectory
+                        ? AdStreamService.HideFolder(node.FullPath, progress, token)
+                        : AdStreamService.HideFile(node.FullPath, progress, token), token);
+
+                LoadRoots();
+                try
                 {
-                    if (node.IsDirectory) AdStreamService.HideFolder(node.FullPath);
-                    else AdStreamService.HideFile(node.FullPath);
-                });
-                LoadRoots();   // 隐藏成功后刷新树
-                MessageBox.Show("隐藏成功。可在\"隐藏列表\"页查看并恢复。", "HideMe",
+                    await _events.PublishOnUIThreadAsync(new VaultChangedMessage());
+                }
+                catch (Exception ex)
+                {
+                    LogService.Warn("发布保险库变更通知失败", ex);
+                }
+
+                var message = "隐藏成功。可在\"隐藏列表\"页查看并恢复。";
+                if (result.UsedFallback)
+                    message += "\r\n\r\n注意：无法在目标盘创建保险库，内容实际存放在 " +
+                               Path.GetPathRoot(result.VaultPath) + "。";
+                MessageBox.Show(message, "HideMe", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (OperationCanceledException)
+            {
+                MessageBox.Show("已取消，原条目未被修改。", "HideMe",
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("隐藏失败：" + ex.Message, "HideMe",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                LogService.Error("隐藏失败：" + node.FullPath, ex);
+                MessageBox.Show("隐藏失败：" + ex.Message + "\r\n\r\n详情见日志：" + LogService.Directory,
+                    "HideMe", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsBusy = false;
+                StatusText = "";
+                ProgressValue = 0;
+                IsIndeterminate = false;
+                try { _cts.Dispose(); } catch { }
+                _cts = null;
             }
         }
     }

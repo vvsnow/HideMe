@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
 using Caliburn.Micro;
 using HideMe.Services;
@@ -28,6 +29,9 @@ namespace HideMe
         /// </summary>
         protected override void Configure()
         {
+            // MenuItem 默认事件约定：支持 cal:Message.Attach="Hide" 简写
+            ConventionManager.AddElementConvention<MenuItem>(MenuItem.HeaderProperty, "DataContext", "Click");
+
             _container = new SimpleContainer();
 
             // 框架服务
@@ -68,13 +72,15 @@ namespace HideMe
 
         protected override void OnStartup(object sender, StartupEventArgs e)
         {
+            LogService.CleanupOldLogs();
             DisplayRootViewForAsync<ShellViewModel>();
         }
 
         protected override void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            MessageBox.Show(e.Exception.ToString(), "未处理的异常",
-                MessageBoxButton.OK, MessageBoxImage.Error);
+            LogService.Error("未处理的异常", e.Exception);
+            MessageBox.Show("发生未处理异常，程序将继续运行。\r\n详情已写入日志：\r\n" + LogService.Directory,
+                "HideMe", MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
         }
     }

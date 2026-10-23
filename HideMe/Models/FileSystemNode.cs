@@ -1,7 +1,10 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Security;
+using System.Windows.Media;
 using Caliburn.Micro;
+using HideMe.Services;
 
 namespace HideMe.Models
 {
@@ -13,6 +16,7 @@ namespace HideMe.Models
         private bool _isExpanded;
         private bool _isSelected;
         private bool _loaded;
+        private ImageSource _icon;
 
         public FileSystemNode(string name, string fullPath, bool isDirectory)
         {
@@ -25,6 +29,30 @@ namespace HideMe.Models
         public string FullPath { get; }
         public bool IsDirectory { get; }
         public bool ShowHiddenFiles { get; set; }
+
+        /// <summary>是否为盘符根节点。</summary>
+        public bool IsDrive
+        {
+            get
+            {
+                if (!IsDirectory || string.IsNullOrEmpty(FullPath)) return false;
+                var root = Path.GetPathRoot(FullPath);
+                if (string.IsNullOrEmpty(root)) return false;
+                return string.Equals(root.TrimEnd('\\', '/'), FullPath.TrimEnd('\\', '/'),
+                    StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        /// <summary>Shell 图标（懒加载并缓存）。</summary>
+        public ImageSource Icon
+        {
+            get
+            {
+                if (_icon == null)
+                    _icon = ShellIconService.GetIcon(FullPath, IsDirectory, IsDrive);
+                return _icon;
+            }
+        }
 
         public ObservableCollection<FileSystemNode> Children { get; } = new ObservableCollection<FileSystemNode>();
 
@@ -71,8 +99,11 @@ namespace HideMe.Models
                     catch { }
                 }
             }
-            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException)
+            catch (Exception ex) when (ex is UnauthorizedAccessException
+                                       || ex is IOException
+                                       || ex is SecurityException)
             {
+                LogService.Warn("枚举目录失败：" + FullPath, ex);
                 Children.Add(new FileSystemNode("（无法访问）", FullPath, false));
             }
         }

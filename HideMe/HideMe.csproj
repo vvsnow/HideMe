@@ -66,17 +66,22 @@
     <Compile Include="Models\FileSystemNode.cs" />
     <Compile Include="Models\HiddenItem.cs" />
     <Compile Include="Models\HiddenMeta.cs" />
+    <Compile Include="Models\OperationResults.cs" />
+    <Compile Include="Models\VaultChangedMessage.cs" />
     <Compile Include="Services\AdStreamService.cs" />
+    <Compile Include="Services\HideIndex.cs" />
+    <Compile Include="Services\LogService.cs" />
     <Compile Include="Services\SettingsService.cs" />
+    <Compile Include="Services\ShellIconService.cs" />
     <Compile Include="ViewModels\BrowserViewModel.cs" />
-    <Compile Include="ViewModels\EncryptedListViewModel.cs" />
+    <Compile Include="ViewModels\HiddenListViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
     <Compile Include="Views\BrowserView.xaml.cs">
       <DependentUpon>BrowserView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\EncryptedListView.xaml.cs">
-      <DependentUpon>EncryptedListView.xaml</DependentUpon>
+    <Compile Include="Views\HiddenListView.xaml.cs">
+      <DependentUpon>HiddenListView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingsView.xaml.cs">
       <DependentUpon>SettingsView.xaml</DependentUpon>
@@ -124,7 +129,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\EncryptedListView.xaml">
+    <Page Include="Views\HiddenListView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
