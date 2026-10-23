@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -57,7 +58,7 @@ namespace HideMe.ViewModels
         {
             if (_shownHiddenFiles == _settings.ShowHiddenFiles) return;
             _shownHiddenFiles = _settings.ShowHiddenFiles;
-            LoadRoots();
+            if (!IsBusy) ReloadPreservingState();
         }
 
         private void LoadRoots()
@@ -80,7 +81,70 @@ namespace HideMe.ViewModels
         public void Reload()
         {
             if (IsBusy) return;
+            ReloadPreservingState();
+        }
+
+        /// <summary>重建文件树，同时恢复已展开节点和当前选中项。</summary>
+        private void ReloadPreservingState()
+        {
+            var expanded = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            CollectExpanded(RootNodes, expanded);
+
+            var selectedPath = SelectedNode != null ? SelectedNode.FullPath : null;
+
             LoadRoots();
+            RestoreExpanded(RootNodes, expanded);
+
+            if (!string.IsNullOrEmpty(selectedPath))
+            {
+                var node = FindNode(RootNodes, selectedPath);
+                if (node != null)
+                {
+                    node.IsSelected = true;
+                    SelectedNode = node;
+                    return;
+                }
+            }
+
+            SelectedNode = null;
+        }
+
+        private static void CollectExpanded(IEnumerable<FileSystemNode> nodes, HashSet<string> expanded)
+        {
+            foreach (var node in nodes)
+            {
+                if (!node.IsDirectory || !node.IsExpanded) continue;
+                expanded.Add(node.FullPath);
+                CollectExpanded(node.Children, expanded);
+            }
+        }
+
+        private static void RestoreExpanded(IEnumerable<FileSystemNode> nodes, HashSet<string> expanded)
+        {
+            foreach (var node in nodes)
+            {
+                if (!node.IsDirectory) continue;
+                if (!expanded.Contains(node.FullPath)) continue;
+
+                node.IsExpanded = true;   // 同步加载子节点
+                RestoreExpanded(node.Children, expanded);
+            }
+        }
+
+        private static FileSystemNode FindNode(IEnumerable<FileSystemNode> nodes, string path)
+        {
+            foreach (var node in nodes)
+            {
+                if (string.Equals(node.FullPath, path, StringComparison.OrdinalIgnoreCase))
+                    return node;
+
+                if (node.IsExpanded)
+                {
+                    var found = FindNode(node.Children, path);
+                    if (found != null) return found;
+                }
+            }
+            return null;
         }
 
         public void OpenInExplorer()
@@ -151,7 +215,7 @@ namespace HideMe.ViewModels
                         ? AdStreamService.HideFolder(node.FullPath, progress, token)
                         : AdStreamService.HideFile(node.FullPath, progress, token), token);
 
-                LoadRoots();
+                ReloadPreservingState();
                 try
                 {
                     await _events.PublishOnUIThreadAsync(new VaultChangedMessage());
