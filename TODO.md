@@ -17,10 +17,11 @@
 ## 本轮完成（2026-10-25）
 
 - 项目迁移到 **.NET 10（`net10.0-windows`）+ SDK 风格 csproj**，新增 `app.manifest`（PerMonitorV2）。
-- 接入 **LightUi 1.0.10**：主窗口改为无边框 + 左侧列表导航 + 明暗主题切换，与 LightUi.Demo 一致。
+- 接入 **LightUi 1.0.12**：主窗口改为无边框 + 左侧列表导航 + 明暗主题切换，与 LightUi.Demo 一致；SettingsView 改用主题画刷。
 - TreeView / DataGrid 采用 LightUi 默认样式；移除按钮上手写的垂直 `Padding`。
 - 使用 Fody 简化 `FileSystemNode` 属性；移除 `Screen` 派生类上多余的 `[AddINotifyPropertyChangedInterface]`。
 - TreeView 选中改由 Caliburn 事件绑定处理，移除对应的 code-behind 转发。
+- 文件浏览器每次激活时自动刷新文件树，保留展开与选中状态。
 
 ## 后续可选（不在本轮 12 条内）
 

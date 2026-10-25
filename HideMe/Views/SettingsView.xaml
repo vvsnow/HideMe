@@ -1,17 +1,38 @@
-<UserControl x:Class="HideMe.Views.SettingsView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:cal="http://caliburnmicro.com">
-    <StackPanel Margin="20" Width="520" HorizontalAlignment="Left">
-        <CheckBox Content="隐藏前弹出确认对话框" IsChecked="{Binding ConfirmBeforeHide}" Margin="0,4" />
-        <CheckBox Content="在文件树中显示隐藏/系统文件" IsChecked="{Binding ShowHiddenFiles}" Margin="0,4,0,12" />
-        <TextBlock Foreground="Gray" TextWrapping="Wrap"
-                   Text="说明：隐藏的内容存放在原文件所在盘的回收站隐藏目录（\$Recycle.Bin\当前用户SID）的 ADS 流中，普通浏览和 dir 都看不到。可在“隐藏列表”页扫描并恢复。" />
-        <TextBlock Foreground="#B05000" TextWrapping="Wrap" Margin="0,10,0,0"
-                   Text="注意：内容是明文存储，并非加密；不参与系统备份；删除或重建该 SID 目录、重装系统、使用清理工具都可能导致数据永久丢失；换一台机器无法恢复。" />
-        <TextBlock Foreground="Gray" TextWrapping="Wrap" Margin="0,10,0,0"
-                   Text="日志目录：%LOCALAPPDATA%\HideMe\logs" />
-        <Button Content="保存设置" cal:Message.Attach="Save"
-                Margin="0,16,0,0" HorizontalAlignment="Left" />
+<UserControl
+    x:Class="HideMe.Views.SettingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:cal="http://caliburnmicro.com">
+    <StackPanel
+        Width="520"
+        Margin="20"
+        HorizontalAlignment="Left">
+        <CheckBox
+            Margin="0,4"
+            Content="隐藏前弹出确认对话框"
+            IsChecked="{Binding ConfirmBeforeHide}" />
+        <CheckBox
+            Margin="0,4,0,12"
+            Content="在文件树中显示隐藏/系统文件"
+            IsChecked="{Binding ShowHiddenFiles}" />
+        <TextBlock
+            Foreground="{DynamicResource TextSecondaryBrush}"
+            Text="说明：隐藏的内容存放在原文件所在盘的回收站隐藏目录（\$Recycle.Bin\当前用户SID）的 ADS 流中，普通浏览和 dir 都看不到。可在“隐藏列表”页扫描并恢复。"
+            TextWrapping="Wrap" />
+        <TextBlock
+            Margin="0,10,0,0"
+            Foreground="{DynamicResource TextWarningBrush}"
+            Text="注意：内容是明文存储，并非加密；不参与系统备份；删除或重建该 SID 目录、重装系统、使用清理工具都可能导致数据永久丢失；换一台机器无法恢复。"
+            TextWrapping="Wrap" />
+        <TextBlock
+            Margin="0,10,0,0"
+            Foreground="{DynamicResource TextSecondaryBrush}"
+            Text="日志目录：%LOCALAPPDATA%\HideMe\logs"
+            TextWrapping="Wrap" />
+        <Button
+            Margin="0,16,0,0"
+            HorizontalAlignment="Left"
+            cal:Message.Attach="Save"
+            Content="保存设置" />
     </StackPanel>
 </UserControl>

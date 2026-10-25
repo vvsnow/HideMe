@@ -53,6 +53,13 @@ namespace HideMe.ViewModels
             LoadRoots();
         }
 
+        /// <summary>每次页面显示时刷新文件树（保留展开状态与选中项）。</summary>
+        protected override async Task OnActivateAsync(CancellationToken cancellationToken)
+        {
+            await base.OnActivateAsync(cancellationToken);
+            Reload();
+        }
+
         /// <summary>
         /// TreeView 选中项变化。由 XAML 的 Caliburn 事件绑定转发：
         /// [Event SelectedItemChanged] = [HandleSelectedItemChanged($eventArgs)]
