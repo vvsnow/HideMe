@@ -13,6 +13,7 @@ Windows 桌面小工具：把文件/文件夹从原位置隐藏，内容存放�
 
 ## 界面
 
+- **导航**：基于 [LightUi](https://github.com/vvsnow/lightui) 的无边框窗口，左侧列表导航（文件浏览器 / 隐藏列表 / 设置），右上角切换明暗主题，与 LightUi.Demo 一致。
 - **文件浏览器**：盘符树、Shell 图标、右键菜单（隐藏 / 在资源管理器中打开 / 刷新）、进度条与取消。
 - **隐藏列表**：自动/手动扫描，显示状态（正常 / 元数据缺失 / 数据丢失），恢复选中项；恢复期间可取消。
 - **设置**：隐藏前确认、是否显示隐藏/系统文件（保存后文件树即时刷新）。
@@ -38,6 +39,9 @@ Windows 桌面小工具：把文件/文件夹从原位置隐藏，内容存放�
 
 ## 构建
 
-- Visual Studio 2026，.NET Framework 4.7.2，WPF，Caliburn.Micro 4.0，PropertyChanged.Fody。
-- 旧式 csproj：新增 `.cs` 文件需手动加入 `Compile Include`。
-- `dotnet build` 不适用于本项目，请使用 Visual Studio 或 MSBuild。
+- .NET 10（`net10.0-windows`），WPF，Caliburn.Micro 4.0.230，[LightUi](https://github.com/vvsnow/lightui) 1.0.10，PropertyChanged.Fody。
+- SDK 风格项目：`dotnet build HideMe/HideMe.csproj`。
+- `App.xaml` 合并 LightUi 的 `ControlsResources.xaml`；DPI 感知（PerMonitorV2）由 `app.manifest` 声明。
+- 旧 `.NET Framework` 时代的 `Properties\AssemblyInfo.cs`、`Settings.Designer.cs` 仍保留在磁盘上，但已通过 csproj 的 `Compile Remove` 排除出编译。
+- 部署：目标机需要 .NET 10 Desktop Runtime；或使用 `dotnet publish -c Release -r win-x64 --self-contained true` 发布自包含版本。
+- Fody 约定：继承 `Screen` 的 ViewModel 不需要 `[AddINotifyPropertyChangedInterface]`；普通模型类（如 `HiddenItem`）需要。属性变化后的副作用可写成 `On<属性名>Changed` 方法。

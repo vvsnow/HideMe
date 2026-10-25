@@ -9,9 +9,9 @@
     <DockPanel Margin="8">
         <StackPanel DockPanel.Dock="Top">
             <StackPanel Orientation="Horizontal">
-                <Button Content="扫描" Padding="12,6" cal:Message.Attach="Scan" />
-                <Button Content="恢复选中项" Padding="12,6" Margin="8,0,0,0" cal:Message.Attach="Show" />
-                <Button Content="取消" Padding="12,6" Margin="8,0,0,0" cal:Message.Attach="Cancel"
+                <Button Content="扫描" cal:Message.Attach="Scan" />
+                <Button Content="恢复选中项" Margin="8,0,0,0" cal:Message.Attach="Show" />
+                <Button Content="取消" Margin="8,0,0,0" cal:Message.Attach="Cancel"
                         Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}" />
             </StackPanel>
             <TextBlock Text="{Binding StatusText}" Margin="0,8,0,0" TextWrapping="Wrap" />

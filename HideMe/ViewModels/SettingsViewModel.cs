@@ -3,14 +3,12 @@ using System.Threading.Tasks;
 using System.Windows;
 using Caliburn.Micro;
 using HideMe.Services;
-using PropertyChanged;
 
 namespace HideMe.ViewModels
 {
     /// <summary>
     /// 设置页：隐藏前确认、是否显示隐藏/系统文件。
     /// </summary>
-    [AddINotifyPropertyChangedInterface]
     public class SettingsViewModel : Screen
     {
         private readonly SettingsService _settings;

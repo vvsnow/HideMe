@@ -16,7 +16,6 @@ namespace HideMe.ViewModels
     /// <summary>
     /// 文件浏览器页：盘符树 + 对选中文件/文件夹执行隐藏。
     /// </summary>
-    [AddINotifyPropertyChangedInterface]
     public class BrowserViewModel : Screen
     {
         private readonly SettingsService _settings;
@@ -52,6 +51,15 @@ namespace HideMe.ViewModels
             settings.Changed += HandleSettingsChanged;
             DisplayName = "文件浏览器";
             LoadRoots();
+        }
+
+        /// <summary>
+        /// TreeView 选中项变化。由 XAML 的 Caliburn 事件绑定转发：
+        /// [Event SelectedItemChanged] = [HandleSelectedItemChanged($eventArgs)]
+        /// </summary>
+        public void HandleSelectedItemChanged(RoutedPropertyChangedEventArgs<object> e)
+        {
+            SelectedNode = e.NewValue as FileSystemNode;
         }
 
         private void HandleSettingsChanged(object sender, EventArgs e)

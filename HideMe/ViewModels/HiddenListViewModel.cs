@@ -13,7 +13,6 @@ namespace HideMe.ViewModels
     /// <summary>
     /// 隐藏列表页：动态扫描各盘回收站 SID 目录，可恢复（显示）选中项。
     /// </summary>
-    [AddINotifyPropertyChangedInterface]
     public class HiddenListViewModel : Screen, IHandle<VaultChangedMessage>
     {
         private readonly IEventAggregator _events;

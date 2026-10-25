@@ -2,8 +2,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using HideMe.Models;
-using HideMe.ViewModels;
 
 namespace HideMe.Views
 {
@@ -15,13 +13,6 @@ namespace HideMe.Views
         public BrowserView()
         {
             InitializeComponent();
-        }
-
-        // TreeView.SelectedItem 不可绑定，通过 code-behind 转发到 VM
-        private void DirectoryTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            if (DataContext is BrowserViewModel vm)
-                vm.SelectedNode = e.NewValue as FileSystemNode;
         }
 
         // 右键时先选中被点击的节点，菜单 action 仍由 Caliburn 绑定

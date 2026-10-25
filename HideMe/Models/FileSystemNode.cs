@@ -3,18 +3,17 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Security;
 using System.Windows.Media;
-using Caliburn.Micro;
 using HideMe.Services;
+using PropertyChanged;
 
 namespace HideMe.Models
 {
     /// <summary>
     /// 文件树节点：懒加载，展开时才填充子项。
     /// </summary>
-    public class FileSystemNode : PropertyChangedBase
+    [AddINotifyPropertyChangedInterface]
+    public class FileSystemNode
     {
-        private bool _isExpanded;
-        private bool _isSelected;
         private bool _loaded;
         private ImageSource _icon;
 
@@ -56,20 +55,18 @@ namespace HideMe.Models
 
         public ObservableCollection<FileSystemNode> Children { get; } = new ObservableCollection<FileSystemNode>();
 
-        public bool IsExpanded
-        {
-            get { return _isExpanded; }
-            set
-            {
-                if (Set(ref _isExpanded, value) && value && IsDirectory)
-                    EnsureChildren();
-            }
-        }
+        public bool IsExpanded { get; set; }
 
-        public bool IsSelected
+        public bool IsSelected { get; set; }
+
+        /// <summary>
+        /// Fody 约定：IsExpanded 变化后自动调用。
+        /// 默认带相等性检查，值未变化时不会触发，与旧 Set(ref ...) 的语义一致。
+        /// </summary>
+        private void OnIsExpandedChanged()
         {
-            get { return _isSelected; }
-            set { Set(ref _isSelected, value); }
+            if (IsExpanded && IsDirectory)
+                EnsureChildren();
         }
 
         /// <summary>首次展开时加载子项（清掉占位节点）。</summary>

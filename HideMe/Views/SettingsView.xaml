@@ -12,6 +12,6 @@
         <TextBlock Foreground="Gray" TextWrapping="Wrap" Margin="0,10,0,0"
                    Text="日志目录：%LOCALAPPDATA%\HideMe\logs" />
         <Button Content="保存设置" cal:Message.Attach="Save"
-                Margin="0,16,0,0" Padding="12,6" HorizontalAlignment="Left" />
+                Margin="0,16,0,0" HorizontalAlignment="Left" />
     </StackPanel>
 </UserControl>

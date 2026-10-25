@@ -1,54 +1,68 @@
-<UserControl x:Class="HideMe.Views.BrowserView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:cal="http://caliburnmicro.com">
+<UserControl
+    x:Class="HideMe.Views.BrowserView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:cal="http://caliburnmicro.com">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
 
-        <!-- 菜单通过 PlacementTarget.Tag 拿到 BrowserViewModel -->
-        <ContextMenu x:Key="NodeMenu"
-                     DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-            <MenuItem Header="隐藏" cal:Message.Attach="Hide" />
-            <MenuItem Header="在资源管理器中打开" cal:Message.Attach="OpenInExplorer" />
+        <!--  菜单通过 PlacementTarget.Tag 拿到 BrowserViewModel  -->
+        <ContextMenu x:Key="NodeMenu" DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+            <MenuItem cal:Message.Attach="Hide" Header="隐藏" />
+            <MenuItem cal:Message.Attach="OpenInExplorer" Header="在资源管理器中打开" />
             <Separator />
-            <MenuItem Header="刷新" cal:Message.Attach="Reload" />
+            <MenuItem cal:Message.Attach="Reload" Header="刷新" />
         </ContextMenu>
     </UserControl.Resources>
 
     <DockPanel>
-        <StackPanel DockPanel.Dock="Top" Margin="8">
+        <StackPanel Margin="8" DockPanel.Dock="Top">
             <StackPanel Orientation="Horizontal">
-                <Button Content="隐藏选中项" Padding="12,6" cal:Message.Attach="Hide" />
-                <Button Content="刷新" Padding="12,6" Margin="8,0,0,0" cal:Message.Attach="Reload" />
-                <Button Content="取消" Padding="12,6" Margin="8,0,0,0" cal:Message.Attach="Cancel"
-                        Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}" />
+                <Button cal:Message.Attach="Hide" Content="隐藏选中项" />
+                <Button
+                    Margin="8,0,0,0"
+                    cal:Message.Attach="Reload"
+                    Content="刷新" />
+                <Button
+                    Margin="8,0,0,0"
+                    cal:Message.Attach="Cancel"
+                    Content="取消"
+                    Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}" />
             </StackPanel>
             <StackPanel Margin="0,8,0,0" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}">
-                <ProgressBar Height="16" Minimum="0" Maximum="100"
-                             Value="{Binding ProgressValue}"
-                             IsIndeterminate="{Binding IsIndeterminate}" />
-                <TextBlock Text="{Binding StatusText}" Margin="0,4,0,0" />
+                <ProgressBar
+                    Height="16"
+                    IsIndeterminate="{Binding IsIndeterminate}"
+                    Maximum="100"
+                    Minimum="0"
+                    Value="{Binding ProgressValue}" />
+                <TextBlock Margin="0,4,0,0" Text="{Binding StatusText}" />
             </StackPanel>
         </StackPanel>
 
-        <TreeView x:Name="DirectoryTree" Margin="8"
-                  ItemsSource="{Binding RootNodes}"
-                  SelectedItemChanged="DirectoryTree_SelectedItemChanged"
-                  PreviewMouseRightButtonDown="DirectoryTree_PreviewMouseRightButtonDown">
+        <TreeView
+            x:Name="DirectoryTree"
+            Margin="8"
+            ItemsSource="{Binding RootNodes}"
+            PreviewMouseRightButtonDown="DirectoryTree_PreviewMouseRightButtonDown"
+            cal:Message.Attach="[Event SelectedItemChanged] = [HandleSelectedItemChanged($eventArgs)]">
             <TreeView.ItemContainerStyle>
-                <Style TargetType="TreeViewItem">
+                <Style BasedOn="{StaticResource {x:Type TreeViewItem}}" TargetType="TreeViewItem">
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                     <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                    <Setter Property="Tag"
-                            Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=TreeView}}" />
+                    <Setter Property="Tag" Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=TreeView}}" />
                     <Setter Property="ContextMenu" Value="{StaticResource NodeMenu}" />
                 </Style>
             </TreeView.ItemContainerStyle>
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                     <StackPanel Orientation="Horizontal">
-                        <Image Width="16" Height="16" Margin="0,0,4,0" Source="{Binding Icon}" />
-                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                        <Image
+                            Width="16"
+                            Height="16"
+                            Margin="0,0,4,0"
+                            Source="{Binding Icon}" />
+                        <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
                     </StackPanel>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
