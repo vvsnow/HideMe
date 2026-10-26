@@ -6,7 +6,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <!-- LightUi 的唯一入口：它会把库内所有样式字典带进来 -->
+                <!--  LightUi 的唯一入口：它会把库内所有样式字典带进来  -->
                 <ResourceDictionary Source="pack://application:,,,/LightUi;component/ControlsResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

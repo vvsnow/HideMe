@@ -39,7 +39,7 @@ Windows 桌面小工具：把文件/文件夹从原位置隐藏，内容存放�
 
 ## 构建
 
-- .NET 10（`net10.0-windows`），WPF，Caliburn.Micro 4.0.230，[LightUi](https://github.com/vvsnow/lightui) 1.0.12，PropertyChanged.Fody。
+- .NET 10（`net10.0-windows`），WPF，Caliburn.Micro 4.0.230，[LightUi](https://github.com/vvsnow/lightui) 1.1.3，PropertyChanged.Fody。
 - SDK 风格项目：`dotnet build HideMe/HideMe.csproj`。
 - `App.xaml` 合并 LightUi 的 `ControlsResources.xaml`；DPI 感知（PerMonitorV2）由 `app.manifest` 声明。
 - 旧 `.NET Framework` 时代的 `Properties\AssemblyInfo.cs`、`Settings.Designer.cs` 仍保留在磁盘上，但已通过 csproj 的 `Compile Remove` 排除出编译。

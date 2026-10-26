@@ -43,9 +43,9 @@
         <TreeView
             x:Name="DirectoryTree"
             Margin="8"
+            cal:Message.Attach="[Event SelectedItemChanged] = [HandleSelectedItemChanged($eventArgs)]"
             ItemsSource="{Binding RootNodes}"
-            PreviewMouseRightButtonDown="DirectoryTree_PreviewMouseRightButtonDown"
-            cal:Message.Attach="[Event SelectedItemChanged] = [HandleSelectedItemChanged($eventArgs)]">
+            PreviewMouseRightButtonDown="DirectoryTree_PreviewMouseRightButtonDown">
             <TreeView.ItemContainerStyle>
                 <Style BasedOn="{StaticResource {x:Type TreeViewItem}}" TargetType="TreeViewItem">
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
